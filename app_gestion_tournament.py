@@ -14,8 +14,8 @@ BDD = sqlite3.connect("players.db")
 CURSOR = BDD.cursor()
 
 CURSOR.execute("create table if not exists Players(id INTEGER primary key "
-               "autoincrement, pseudo TEXT, rl_mrr FLOAT, hours int,"
-               "goals int, assists int, saves int, mvps int)")
+               "autoincrement, pseudo TEXT, plateform text, rl_mrr int, hours int,"
+               "goals int, assists int, saves int, mvps int);")
 
 
 TITLE_FONT = ("Arial bold", 30)
@@ -31,52 +31,105 @@ class App(tk.Frame):
 
         tk.Label(self, text="Welcome in the tournament manager",
                  bg=BG,
-                 font=TITLE_FONT).pack(expand=YES)
+                 font=TITLE_FONT).pack(expand=YES, pady=7)
 
-        tk.Button(self, text="add a player",
-                  command=self.add_player_p).pack(expand=YES)
+        tk.Button(self, text="Add a player",
+                  command=self.add_player_p).pack(expand=YES, pady=7)
+
+        tk.Button(self, text="Show All Players", command=self.show_players).pack(expand=YES, pady=7)
+
+        tk.Button(self, text="Exucute code", command=self.execute_code).pack(expand=YES, pady=7)
 
         self.pack(expand=YES)
 
-        BDD.commit()
+        self.pseudo = None
+        self.plateform = None
+        self.mmr = None
+        self.goals = None
+        self.mvps = None
+        self.assists = None
+        self.hdj = None
 
-        CURSOR.close()
-        BDD.close()
-
-    def add_player_p(self):
+    def add_player_p(self, *evt):
         def add_player(*evt) -> None:
-            elt = (self.pseudo)
+            elt = (self.pseudo.get(), self.plateform.get(), self.mmr.get(), self.hdj.get(),
+                   self.goals.get(), self.assists.get(), self.saves.get(), self.mvps.get())
+            CURSOR\
+                .execute("insert into Players(pseudo, plateform, "
+                        "rl_mrr, hours, goals, assists, saves, mvps)"
+                        " VALUES (?, ?, ?, ?, ?, ?, ?, ?)", elt)
+            self.win1.quit()
+            self.win1.destroy()
 
-        win = tk.Tk()
-        win.geometry("400x400")
-        win.config(bg=BG)
+        self.win1 = tk.Tk()
+        self.win1.geometry("400x400")
+        self.win1.config(bg=BG)
 
-        master_add_p = tk.Frame(win, bg = BG)
+        master_add_p = tk.Frame(self.win1, bg = BG)
 
         tk.Label(master_add_p, text="New Player", font=TITLE_FONT,
                  bg=BG).pack(expand=YES)
 
         form = tk.Frame(master_add_p, bg=BG)
-        tk.Label(form, text="Pseudo : ", bg=BG).grid(row=0, column=0,
-                sticky=tk.W)
-        pseudo = tk.Entry(form, bg=BG)
-        pseudo.grid(row=0, column=1)
-        tk.Label(form, text="Mmr : ", bg=BG).grid(row=1, column=0, sticky=tk.W)
+
+        tk.Label(form, text="Pseudo : ", bg=BG).grid(row=0, column=0, sticky=tk.W, pady=5)
+        self.pseudo = tk.Entry(form, bg=BG)
+        self.pseudo.grid(row=0, column=1)
+
+        tk.Label(form, text="Plateform : ", bg=BG).grid(row=1, column=0, sticky=tk.W, pady=5)
+        self.plateform = tk.Entry(form, bg=BG)
+        self.plateform.grid(row=1, column=1)
+
+        tk.Label(form, text="Mmr : ", bg=BG).grid(row=2, column=0, sticky=tk.W, pady=5)
         self.mmr = tk.Entry(form, bg=BG)
-        self.mmr.grid(row=1, column=1)
-        tk.Label(form, text="hour of game : ", bg=BG).grid(row=2, sticky=tk.W, column=0)
+        self.mmr.grid(row=2, column=1)
+
+        tk.Label(form, text="hour of game : ", bg=BG).grid(row=3, sticky=tk.W, pady=5, column=0)
         self.hdj = tk.Entry(form, bg=BG)
-        self.hdj.grid(row=2, column=1)
+        self.hdj.grid(row=3, column=1)
+
+        tk.Label(form, text="Goals : ", bg=BG).grid(row=4, sticky=tk.W, pady=5, column=0)
+        self.goals = tk.Entry(form, bg=BG)
+        self.goals.grid(row=4, column=1)
+
+        tk.Label(form, text="Saves : ", bg=BG).grid(row=5, column=0, sticky=tk.W, pady=5)
+        self.saves = tk.Entry(form, bg=BG)
+        self.saves.grid(row=5, column=1)
+
+        tk.Label(form, text="Assists : ", bg=BG).grid(row=6, column=0, sticky=tk.W, pady=5)
+        self.assists = tk.Entry(form, bg=BG)
+        self.assists.grid(row=6, column=1)
+
+        tk.Label(form, text="MVPs : ", bg=BG).grid(row=7, column=0, sticky=tk.W, pady=5)
+        self.mvps = tk.Entry(form, bg=BG)
+        self.mvps.grid(row=7, column=1)
 
         form.pack(expand=YES)
 
         tk.Button(master_add_p, text="Add this players",
-                  command=self.add_player)
+                  command=add_player).pack(expand=YES)
 
         master_add_p.pack(expand=YES)
 
-        win.mainloop()
+        self.win1.mainloop()
+
+    def show_players(self, *evt) -> None:
+        CURSOR.execute("select * from players")
+        liste = CURSOR.fetchall()
+        print("=============================================\nPlayers : ")
+        for i in liste:
+            print(i)
+        print("=============================================")
+
+    def execute_code(self, *evt) -> None:
+        CURSOR.execute("delete from players")
 
 
 if __name__ == "__main__":
-    App().mainloop()
+    a = App()
+    a.mainloop()
+
+BDD.commit()
+
+CURSOR.close()
+BDD.close()
