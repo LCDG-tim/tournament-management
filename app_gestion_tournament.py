@@ -38,7 +38,12 @@ class App(tk.Frame):
 
         tk.Button(self, text="Show All Players", command=self.show_players).pack(expand=YES, pady=7)
 
-        tk.Button(self, text="Exucute code", command=self.execute_code).pack(expand=YES, pady=7)
+        tk.Button(self, text="Execute code", command=self.execute_code).pack(expand=YES, pady=7)
+
+        tk.Button(self, text="Quit the App", command=self.quit).pack(expand=YES, pady=7)
+
+        self.win1 = None
+        self.win2 = None
 
         self.pack(expand=YES)
 
@@ -61,7 +66,7 @@ class App(tk.Frame):
             self.win1.quit()
             self.win1.destroy()
 
-        self.win1 = tk.Tk()
+        self.win1 = tk.Toplevel()
         self.win1.geometry("400x400")
         self.win1.config(bg=BG)
 
@@ -116,10 +121,26 @@ class App(tk.Frame):
     def show_players(self, *evt) -> None:
         CURSOR.execute("select * from players")
         liste = CURSOR.fetchall()
+        self.win2 = tk.Toplevel()
+        self.win2.geometry("200x200")
+        self.config(bg=BG)
+        master = tk.Frame(self.win2, bg=BG)
+
+        tab = tk.Listbox(master)
+
         print("=============================================\nPlayers : ")
-        for i in liste:
-            print(i)
+
+        for i, elt in enumerate(liste):
+            print(elt)
+            tab.insert(i, elt)
+
         print("=============================================")
+
+        tab.pack()
+
+
+        master.grid(row=0, column=0, sticky=tk.W)
+        self.win2.mainloop()
 
     def execute_code(self, *evt) -> None:
         CURSOR.execute("delete from players")
