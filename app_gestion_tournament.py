@@ -7,6 +7,11 @@ Created on Wed Mar 10 10:38:32 2021
 
 
 import tkinter as tk
+
+
+import tkinter.ttk as ttk
+
+
 import sqlite3
 
 
@@ -40,7 +45,7 @@ class App(tk.Frame):
 
         tk.Button(self, text="Execute code", command=self.execute_code).pack(expand=YES, pady=7)
 
-        tk.Button(self, text="Quit the App", command=self.quit).pack(expand=YES, pady=7)
+        tk.Button(self, text="Quit the App", command=self.destroy).pack(expand=YES, pady=7)
 
         self.win1 = None
         self.win2 = None
@@ -63,7 +68,6 @@ class App(tk.Frame):
                 .execute("insert into Players(pseudo, plateform, "
                         "rl_mrr, hours, goals, assists, saves, mvps)"
                         " VALUES (?, ?, ?, ?, ?, ?, ?, ?)", elt)
-            self.win1.quit()
             self.win1.destroy()
 
         self.win1 = tk.Toplevel()
@@ -120,26 +124,72 @@ class App(tk.Frame):
 
     def show_players(self, *evt) -> None:
         CURSOR.execute("select * from players")
+
         liste = CURSOR.fetchall()
+
         self.win2 = tk.Toplevel()
         self.win2.geometry("200x200")
-        self.config(bg=BG)
+        self.win2.config(bg=BG)
+
+        tk.Label(self.win2, text="List of Player", font=TITLE_FONT, bg=BG) \
+            .pack(expand=YES)
+
         master = tk.Frame(self.win2, bg=BG)
 
-        tab = tk.Listbox(master)
+        scroll = tk.Scrollbar(master, orient='vertical', bg=BG)
+        scroll.pack()
+
+        tab = ttk.Treeview(master,
+                           columns=('Id', 'Pseudo', 'Plateform',
+                                    'Mmr', 'Hour of game', 'Goals',
+                                    "Assists", "Saves", "MVPs")
+                           )
+
+        tab.heading('Id', text='Id')
+        tab.column("Id", width=30)
+
+        tab.heading('Pseudo', text='Pseudo')
+        tab.column("Pseudo", width=100)
+
+        tab.heading('Plateform', text='Plateform')
+        tab.column("Plateform", width=100)
+
+        tab.heading('Mmr', text="Mmr")
+        tab.column("Mmr", width=70)
+
+        tab.heading('Hour of game', text='Hour of game')
+        tab.column("Hour of game", width=50)
+
+        tab.heading('Goals', text='Assists')
+        tab.column("Goals", width=70)
+
+        tab.heading("Assists", text="Assists")
+        tab.column("Assists", width=70)
+
+        tab.heading('Saves', text='Saves')
+        tab.column("Saves", width=70)
+
+        tab.heading('MVPs', text='MVPs')
+        tab.column("MVPs", width=70)
+
+        tab['show'] = 'headings'
+        tab.pack(padx = 5, pady = (0, 5))
 
         print("=============================================\nPlayers : ")
+        for i, elt in enumerate(liste, start=1):
+            elt = tuple([i] + list(elt[1:]))
 
-        for i, elt in enumerate(liste):
+            tab.insert('', 'end', iid=i+1, values=elt)
+
             print(elt)
-            tab.insert(i, elt)
 
         print("=============================================")
 
-        tab.pack()
+
+        tk.Button(master, text="Select").pack(expand=YES, ipadx=100, pady=10)
 
 
-        master.grid(row=0, column=0, sticky=tk.W)
+        master.pack(expand=YES)
         self.win2.mainloop()
 
     def execute_code(self, *evt) -> None:
