@@ -63,10 +63,6 @@ class App(tk.Frame):
         self.assists = None
         self.hdj = None
 
-    def select():
-        if self.tab.se
-        self.selected.append()
-
     def add_player_p(self, *evt):
         def add_player(*evt) -> None:
             elt = (self.pseudo.get(), self.plateform.get(), self.mmr.get(), self.hdj.get(),
@@ -130,12 +126,14 @@ class App(tk.Frame):
         self.win1.mainloop()
 
     def show_players(self, *evt) -> None:
+        tab = None
+
         CURSOR.execute("select * from players")
 
         liste = CURSOR.fetchall()
 
         self.win2 = tk.Toplevel()
-        self.win2.geometry("200x200")
+        # self.win2.geometry("200x200")
         self.win2.config(bg=BG)
 
         tk.Label(self.win2, text="List of Player", font=TITLE_FONT, bg=BG) \
@@ -143,10 +141,9 @@ class App(tk.Frame):
 
         master = tk.Frame(self.win2, bg=BG)
 
-        scroll = tk.Scrollbar(master, orient='vertical', bg=BG)
-        scroll.pack()
+        tabf = tk.Frame(master, bg=BG)
 
-        self.tab = ttk.Treeview(master,
+        self.tab = ttk.Treeview(tabf,
                            columns=('Id', 'Pseudo', 'Plateform',
                                     'Mmr', 'Hour of game', 'Goals',
                                     "Assists", "Saves", "MVPs"),
@@ -183,7 +180,7 @@ class App(tk.Frame):
         tab.column("MVPs", width=70)
 
         tab['show'] = 'headings'
-        tab.pack(padx = 5, pady = (0, 5))
+        tab.pack(side=tk.LEFT, padx=5, pady=(0, 5))
 
         for i, elt in enumerate(liste, start=1):
             elt = tuple([i] + list(elt[1:]))
@@ -192,13 +189,19 @@ class App(tk.Frame):
 
         tk.Button(master, text="Select", command=self.select) \
             .pack(expand=YES, ipadx=100, pady=10)
+        scroll = tk.Scrollbar(tabf, orient='vertical', bg=BG, command=tab.yview)
+        scroll.pack(side=tk.RIGHT, fill=tk.Y)
 
+        tabf.pack(expand=YES)
 
         master.pack(expand=YES)
         self.win2.mainloop()
 
     def execute_code(self, *evt) -> None:
         CURSOR.execute("delete from players")
+
+    def select(self):
+        pass
 
 
 if __name__ == "__main__":
