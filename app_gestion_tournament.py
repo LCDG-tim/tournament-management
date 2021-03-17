@@ -47,6 +47,9 @@ class App(tk.Frame):
 
         tk.Button(self, text="Quit the App", command=self.destroy).pack(expand=YES, pady=7)
 
+        self.selected = []
+        self.tab = ttk.Treeview()
+
         self.win1 = None
         self.win2 = None
 
@@ -59,6 +62,10 @@ class App(tk.Frame):
         self.mvps = None
         self.assists = None
         self.hdj = None
+
+    def select():
+        if self.tab.se
+        self.selected.append()
 
     def add_player_p(self, *evt):
         def add_player(*evt) -> None:
@@ -139,11 +146,14 @@ class App(tk.Frame):
         scroll = tk.Scrollbar(master, orient='vertical', bg=BG)
         scroll.pack()
 
-        tab = ttk.Treeview(master,
+        self.tab = ttk.Treeview(master,
                            columns=('Id', 'Pseudo', 'Plateform',
                                     'Mmr', 'Hour of game', 'Goals',
-                                    "Assists", "Saves", "MVPs")
+                                    "Assists", "Saves", "MVPs"),
+                                height=10
                            )
+
+        tab = self.tab
 
         tab.heading('Id', text='Id')
         tab.column("Id", width=30)
@@ -175,18 +185,13 @@ class App(tk.Frame):
         tab['show'] = 'headings'
         tab.pack(padx = 5, pady = (0, 5))
 
-        print("=============================================\nPlayers : ")
         for i, elt in enumerate(liste, start=1):
             elt = tuple([i] + list(elt[1:]))
 
             tab.insert('', 'end', iid=i+1, values=elt)
 
-            print(elt)
-
-        print("=============================================")
-
-
-        tk.Button(master, text="Select").pack(expand=YES, ipadx=100, pady=10)
+        tk.Button(master, text="Select", command=self.select) \
+            .pack(expand=YES, ipadx=100, pady=10)
 
 
         master.pack(expand=YES)
