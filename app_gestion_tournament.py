@@ -123,6 +123,8 @@ class App(tk.Frame):
         self.win1.mainloop()
 
     def show_players(self, *evt) -> None:
+        tab = None
+
         CURSOR.execute("select * from players")
 
         liste = CURSOR.fetchall()
@@ -136,10 +138,9 @@ class App(tk.Frame):
 
         master = tk.Frame(self.win2, bg=BG)
 
-        scroll = tk.Scrollbar(master, orient='vertical', bg=BG)
-        scroll.pack()
+        tabf = tk.Frame(master, bg=BG)
 
-        tab = ttk.Treeview(master,
+        tab = ttk.Treeview(tabf,
                            columns=('Id', 'Pseudo', 'Plateform',
                                     'Mmr', 'Hour of game', 'Goals',
                                     "Assists", "Saves", "MVPs")
@@ -173,7 +174,7 @@ class App(tk.Frame):
         tab.column("MVPs", width=70)
 
         tab['show'] = 'headings'
-        tab.pack(padx = 5, pady = (0, 5))
+        tab.pack(side=tk.LEFT, padx=5, pady=(0, 5))
 
         print("=============================================\nPlayers : ")
         for i, elt in enumerate(liste, start=1):
@@ -185,9 +186,12 @@ class App(tk.Frame):
 
         print("=============================================")
 
+        scroll = tk.Scrollbar(tabf, orient='vertical', bg=BG, command=tab.yview)
+        scroll.pack(side=tk.RIGHT, fill=tk.Y)
+
+        tabf.pack(expand=YES)
 
         tk.Button(master, text="Select").pack(expand=YES, ipadx=100, pady=10)
-
 
         master.pack(expand=YES)
         self.win2.mainloop()
